@@ -105,8 +105,8 @@ export function Nameplate({ href = "/" }: { href?: string }) {
         <span>谱</span>
       </span>
       <span className="nameplate__words">
-        <span className="nameplate__zh">句谱</span>
-        <span className="label">Kiki's magic sentence builder</span>
+        <span className="nameplate__zh">Kiki's</span>
+        <span className="label">Sentence album</span>
       </span>
     </a>
   );

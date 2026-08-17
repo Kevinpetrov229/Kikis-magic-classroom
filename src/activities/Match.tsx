@@ -73,12 +73,12 @@ export function Match({ album }: { album: Album }) {
       onRestart={progress.restart}
       footer={
         <div className="row row--wrap row--between">
-          <button type="button" className="press press--quiet" onClick={() => void speak(target.hz, rate)}>
-            <span className="press__hz">听</span> hear it
-          </button>
+            <button type="button" className="press press--quiet" onClick={() => void speak(target.hz, rate)}>
+              Listen
+            </button>
           {chosen && (
             <button type="button" className="press press--zhu" onClick={() => progress.record(correct)} autoFocus>
-              next <span aria-hidden="true">→</span>
+              Next <span aria-hidden="true">→</span>
             </button>
           )}
         </div>

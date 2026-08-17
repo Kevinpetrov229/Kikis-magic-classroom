@@ -94,16 +94,16 @@ export function Jumble({ album }: { album: Album }) {
         <div className="row row--wrap row--between">
           <div className="row row--wrap">
             <button type="button" className="press press--zhu" onClick={() => void speak(target.hz, rate)}>
-              <span className="press__hz">听</span> play again
+              Listen
             </button>
             <button type="button" className="press press--quiet" onClick={() => void speak(target.hz, 0.6)}>
-              slowly
+              Slowly
             </button>
             <button type="button" className="press press--quiet" onClick={lift} disabled={!built.length}>
-              lift last
+              Lift last
             </button>
             <button type="button" className="press press--quiet" onClick={() => setHint(true)} disabled={hint}>
-              hint
+              Hint
             </button>
           </div>
           {verdict !== "open" && (
@@ -113,7 +113,7 @@ export function Jumble({ album }: { album: Album }) {
               onClick={() => progress.record(verdict === "right")}
               autoFocus
             >
-              next <span aria-hidden="true">→</span>
+              Next <span aria-hidden="true">→</span>
             </button>
           )}
         </div>
@@ -133,12 +133,12 @@ export function Jumble({ album }: { album: Album }) {
 
         {verdict === "right" && (
           <p className="notice">
-            <strong className="hz-ui">对了。</strong> {target.py} — {target.en}
+            <strong>Correct.</strong> {target.py} — {target.en}
           </p>
         )}
         {verdict === "wrong" && (
           <p className="notice notice--zhu">
-            <strong className="hz-ui">再听一次。</strong> The sentence was{" "}
+            <strong>Listen again.</strong> The sentence was{" "}
             <span className="hz-ui" style={{ color: "var(--zhu)" }}>
               {target.hz}
             </span>{" "}

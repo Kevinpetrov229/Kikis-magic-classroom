@@ -47,7 +47,7 @@ interface Props {
 
 export function ActivityShell({ album, activity, total, marks, score, children, footer, onRestart }: Props) {
   const today = useMemo(
-    () => new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric" }).format(new Date()),
+    () => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date()),
     [],
   );
 
@@ -73,23 +73,19 @@ export function ActivityShell({ album, activity, total, marks, score, children, 
         <a href={`/a/${album.id}`} className="label label--zhu" style={{ textDecoration: "none" }}>
           ← {album.titleEn}
         </a>
-        <span className="label">/ {activity.strand}</span>
-        <span className="hz" style={{ fontSize: "1.0625rem" }}>
-          {activity.hz}
-        </span>
         <span className="label">{activity.en}</span>
       </nav>
 
       <div className="plate plate--stage" style={{ flexDirection: "row", alignItems: "stretch" }}>
         <div className="bianku" aria-hidden="true">
-          {album.title} · {activity.hz} · {today}
+          {album.titleEn} · {activity.en} · {today}
         </div>
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           <div className="plate__head">
             <span className="label">{activity.brief}</span>
             {onRestart && (
               <button type="button" className="press press--quiet" onClick={onRestart}>
-                <span className="press__hz">重来</span>
+                Restart
               </button>
             )}
           </div>
@@ -112,7 +108,6 @@ export function ActivityShell({ album, activity, total, marks, score, children, 
 
 /** The 落款 that closes a finished album page. */
 export function Colophon({
-  album,
   score,
   accuracy,
   onRestart,
@@ -144,15 +139,14 @@ export function Colophon({
         </span>
       </div>
       <p className="translation" style={{ margin: 0 }}>
-        This page of {album.title} is finished. Press 重来 for a fresh set — the sentences are drawn from the album
-        again, so no two rounds ask the same thing.
+        Finished. Start a new set for different sentences from the same table.
       </p>
       <div className="row row--wrap">
         <button type="button" className="press press--zhu" onClick={onRestart}>
-          <span className="press__hz">重来</span> new set
+          New set
         </button>
         <a className="press" href={nextHref}>
-          all activities
+          All games
         </a>
       </div>
     </div>

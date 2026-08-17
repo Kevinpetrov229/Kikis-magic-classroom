@@ -140,18 +140,18 @@ function EditGate({ id, editKey }: { id: string; editKey: string | null }) {
     <div className="shell">
       <Nameplate />
       <div className="stack" style={{ marginTop: "var(--s7)", maxWidth: 560 }}>
-        <h1 className="hz" style={{ fontSize: "2rem", margin: 0 }}>
-          这是班级用的谱。
+        <h1 style={{ fontSize: "1.75rem", margin: 0, fontWeight: 700 }}>
+          This is the class copy.
         </h1>
         <p className="translation" style={{ margin: 0 }}>
-          This link opens the class copy. To put your own vocabulary in, copy the table — the original stays as it is.
+          To put your own vocabulary in, copy the table — the original stays as it is.
         </p>
         <div className="row row--wrap">
           <a className="press press--zhu" href={`/new?from=${id}`}>
-            <span className="press__hz">刻一张</span> copy and add your words
+            Use with my words
           </a>
           <a className="press press--quiet" href={`/a/${id}`}>
-            open the class album
+            Open the class album
           </a>
         </div>
       </div>
@@ -203,19 +203,19 @@ function Missing404() {
         <span className="impression" aria-hidden="true">
           <span className="impression__hz">无</span>
         </span>
-        <h1 className="hz" style={{ fontSize: "2rem", margin: 0 }}>
-          没有这张谱。
+        <h1 style={{ fontSize: "1.75rem", margin: 0, fontWeight: 700 }}>
+          Album not found.
         </h1>
         <p className="translation" style={{ margin: 0 }}>
-          There is no album at this link. It may have been mistyped, or the album was never published. The ready-made
-          albums are on the shelf, and the activity index for any album lives at its cover page.
+          There is no album at this link. It may have been mistyped, or the album was never published. Ready-made
+          albums are in the album list, and every album’s games live on its cover page.
         </p>
         <div className="row row--wrap">
           <a className="press press--zhu" href="/library">
-            <span className="press__hz">书架</span> the shelf
+            Albums
           </a>
           <a className="press press--quiet" href="/">
-            home
+            Home
           </a>
         </div>
         <p className="label">

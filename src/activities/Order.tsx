@@ -103,7 +103,7 @@ export function Order({ album }: { album: Album }) {
           </div>
           {verdict !== "open" && (
             <button type="button" className="press press--zhu" onClick={() => progress.record(verdict === "right")} autoFocus>
-              next <span aria-hidden="true">→</span>
+              Next <span aria-hidden="true">→</span>
             </button>
           )}
         </div>
@@ -129,17 +129,17 @@ export function Order({ album }: { album: Album }) {
           {placed.map((trayIndex, position) => (
             <Impression key={`${trayIndex}-${position}`} chunk={tray[trayIndex]} onClick={() => removeAt(position)} />
           ))}
-          {!placed.length && <span className="line__empty">把词语放到这里，拼成句子 — drop or click the words to build the sentence</span>}
+          {!placed.length && <span className="line__empty">Drop or click the words to build the sentence</span>}
         </div>
 
         {verdict === "right" && (
           <p className="notice">
-            <strong className="hz-ui">对了。</strong> {target.py}
+            <strong>Correct.</strong> {target.py}
           </p>
         )}
         {verdict === "wrong" && (
           <p className="notice notice--zhu">
-            <strong className="hz-ui">顺序不对。</strong> The album's order is{" "}
+            <strong>Wrong order.</strong> The album’s order is{" "}
             <span className="hz-ui" style={{ color: "var(--zhu)" }}>
               {target.hz}
             </span>

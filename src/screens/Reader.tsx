@@ -80,9 +80,6 @@ export function Reader({ album }: { album: Album }) {
           <a href={`/a/${album.id}`} className="label label--zhu" style={{ textDecoration: "none" }}>
             ← {album.titleEn}
           </a>
-          <span className="hz" style={{ fontSize: "1.0625rem" }}>
-            读物
-          </span>
           <span className="label">Reading texts</span>
         </nav>
       </header>
@@ -90,13 +87,11 @@ export function Reader({ album }: { album: Album }) {
       <div className="spread spread--governed">
         <div className="plate">
           <div className="plate__head">
-            <span className="label">
-              {READING_LEVELS[level - 1].hz} · {READING_LEVELS[level - 1].en}
-            </span>
+            <span className="label">{READING_LEVELS[level - 1].en}</span>
             <div className="row row--wrap">
               {busy && <Grinding>casting the text</Grinding>}
               <button type="button" className="press press--quiet" onClick={() => window.print()}>
-                print
+                Print
               </button>
             </div>
           </div>
@@ -147,7 +142,7 @@ export function Reader({ album }: { album: Album }) {
 
                 <div className="row row--wrap">
                   <button type="button" className="press press--zhu" onClick={() => void speak(text.body.slice(0, 200), rate)}>
-                    <span className="press__hz">朗读</span> read aloud
+                    Read aloud
                   </button>
                   <button
                     type="button"
@@ -155,10 +150,10 @@ export function Reader({ album }: { album: Album }) {
                     onClick={() => setShowTranslation((s) => !s)}
                     aria-expanded={showTranslation}
                   >
-                    {showTranslation ? "hide" : "show"} english
+                    {showTranslation ? "Hide" : "Show"} English
                   </button>
                   <button type="button" className="press press--quiet" onClick={() => void generate(level, true)} disabled={busy}>
-                    <span className="press__hz">再写一篇</span> another text
+                    Another text
                   </button>
                 </div>
 
@@ -168,7 +163,7 @@ export function Reader({ album }: { album: Album }) {
                   <>
                     <hr className="rule" />
                     <div className="stack">
-                      <div className="label">Comprehension · 阅读理解</div>
+                      <div className="label">Comprehension</div>
                       {text.questions.map((question, qi) => (
                         <div key={qi} className="stack stack--tight">
                           <div className="hz-ui" style={{ fontSize: "1.0625rem" }}>
@@ -233,8 +228,10 @@ export function Reader({ album }: { album: Album }) {
                       data-cast={!!cast[stop.id]}
                       onClick={() => setLevel(stop.id as ReadingLevel)}
                     >
-                      <span className="axis__hz">{stop.hz}</span>
                       <span className="label">{stop.en}</span>
+                      <span className="gloss" style={{ display: "block" }}>
+                        {stop.chars}
+                      </span>
                     </button>
                   ))}
                 </div>

@@ -81,10 +81,10 @@ export function Typing({ album }: { album: Album }) {
         <div className="row row--wrap row--between">
           <div className="row row--wrap">
             <button type="button" className="press press--quiet" onClick={() => void speak(target.hz, rate)}>
-              <span className="press__hz">听</span>
+              Listen
             </button>
             <button type="button" className="press press--quiet" onClick={() => setTyped("")} disabled={!typed}>
-              <span className="press__hz">清空</span> clear
+              Clear
             </button>
           </div>
           {finished ? (
@@ -94,7 +94,7 @@ export function Typing({ album }: { album: Album }) {
               onClick={() => progress.record(wrongCount === 0, wrongCount === 0 ? 120 : 70)}
               autoFocus
             >
-              next <span aria-hidden="true">→</span>
+              Next <span aria-hidden="true">→</span>
             </button>
           ) : (
             <button type="button" className="press press--quiet" onClick={() => progress.record(false, 0)}>

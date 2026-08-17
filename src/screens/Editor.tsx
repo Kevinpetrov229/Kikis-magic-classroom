@@ -10,15 +10,15 @@ const blankChunk = (): Chunk => ({ id: newId(), hz: "", py: "", en: "" });
 
 const blankColumn = (n: number): Column => ({
   id: newId("col"),
-  label: `第${n}格`,
-  labelEn: "",
+  label: "",
+  labelEn: `Column ${n}`,
   chunks: [blankChunk()],
 });
 
 const blankFrame = (n: number): Frame => ({
   id: newId("fr"),
-  label: n === 1 ? "肯定" : `框架${n}`,
-  labelEn: n === 1 ? "Affirmative" : "",
+  label: "",
+  labelEn: n === 1 ? "Affirmative" : `Frame ${n}`,
   columns: [blankColumn(1), blankColumn(2), blankColumn(3)],
 });
 
@@ -163,11 +163,10 @@ export function Editor({ initial, clonedFrom }: { initial: Album; clonedFrom?: s
             {totalSentences(album).toLocaleString()} sentence{totalSentences(album) === 1 ? "" : "s"} so far
           </span>
           <a className="press press--quiet" href="/library">
-            <span className="press__hz">书架</span>
+            Albums
           </a>
           <button type="button" className="press press--zhu" onClick={() => void save()} disabled={busy}>
-            <span className="press__hz">{existing?.remoteId ? "更新" : "发布"}</span>{" "}
-            {busy ? "saving…" : existing?.remoteId ? "update the album" : "publish and get a link"}
+            {busy ? "Saving…" : existing?.remoteId ? "Update album" : "Publish and get a link"}
           </button>
         </nav>
       </header>
@@ -176,15 +175,15 @@ export function Editor({ initial, clonedFrom }: { initial: Album; clonedFrom?: s
 
       {copiedFrom && !links && (
         <p className="notice" style={{ marginBottom: "var(--s4)" }}>
-          <strong className="hz-ui">这是副本。</strong> Copied from {copiedFrom}. Change the chunks to your class's
-          vocabulary — the original table is untouched. Publish when you want a class link of your own.
+          <strong>This is a copy.</strong> Copied from {copiedFrom}. Change the chunks to your class’s vocabulary — the
+          original table is untouched. Publish when you want a class link of your own.
         </p>
       )}
 
       {!started && !copiedFrom && (
         <div className="notice" style={{ marginBottom: "var(--s4)" }}>
-          <strong className="hz-ui">用现成的表起步。</strong> Copy a ready-made table, then replace the chunks with your
-          class's words. Or fill the empty columns below from scratch.
+          <strong>Start from a ready-made table.</strong> Copy one below, then replace the chunks with your class’s
+          words. Or fill the empty columns from scratch.
           <div className="row row--wrap" style={{ marginTop: "var(--s3)" }}>
             {SEED_ALBUMS.map((seed) => (
               <button
@@ -192,11 +191,11 @@ export function Editor({ initial, clonedFrom }: { initial: Album; clonedFrom?: s
                 type="button"
                 className="press"
                 onClick={() => {
-                  setCopiedFrom(seed.title);
+                  setCopiedFrom(seed.titleEn);
                   setAlbum(cloneAlbum(seed));
                 }}
               >
-                <span className="press__hz">{seed.title}</span> {seed.titleEn}
+                {seed.titleEn}
               </button>
             ))}
           </div>
@@ -205,7 +204,7 @@ export function Editor({ initial, clonedFrom }: { initial: Album; clonedFrom?: s
 
       {links && (
         <div className="notice" style={{ marginBottom: "var(--s4)" }}>
-          <strong className="hz-ui">已发布。</strong>
+          <strong>Published.</strong>
           <div style={{ marginTop: "var(--s2)" }}>
             <div className="label">Class link — send this one</div>
             <div className="num" style={{ wordBreak: "break-all", color: "var(--ink)" }}>
@@ -224,17 +223,17 @@ export function Editor({ initial, clonedFrom }: { initial: Album; clonedFrom?: s
               className="press press--quiet"
               onClick={() => void navigator.clipboard.writeText(links.share)}
             >
-              copy class link
+              Copy class link
             </button>
             <button
               type="button"
               className="press press--quiet"
               onClick={() => void navigator.clipboard.writeText(links.edit)}
             >
-              copy edit link
+              Copy edit link
             </button>
             <a className="press" href={links.share}>
-              open the album
+              Open the album
             </a>
           </div>
         </div>
@@ -319,7 +318,8 @@ export function Editor({ initial, clonedFrom }: { initial: Album; clonedFrom?: s
                       edit((d) => {
                         const copy: Frame = structuredClone(d.frames[fi]);
                         copy.id = newId("fr");
-                        copy.label = `${copy.label}（副本）`;
+                        copy.label = copy.label ? `${copy.label}（副本）` : copy.label;
+                        copy.labelEn = `${copy.labelEn || "Frame"} (copy)`;
                         copy.columns.forEach((col) => {
                           col.id = newId("col");
                           col.chunks.forEach((ch) => (ch.id = newId()));
@@ -498,7 +498,7 @@ function ColumnEditor({
         {column.chunks.map((chunk, i) => (
           <div
             key={chunk.id}
-            style={{ border: "1px solid var(--edge-soft)", borderRadius: 2, padding: "var(--s2)" }}
+            style={{ border: "1px solid var(--edge-soft)", borderRadius: "var(--radius-sm)", padding: "var(--s2)" }}
           >
             <input
               className="input input--hz"

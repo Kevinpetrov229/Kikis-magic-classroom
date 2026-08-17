@@ -89,7 +89,7 @@ export function Missing({ album }: { album: Album }) {
           </span>
           {chosen && (
             <button type="button" className="press press--zhu" onClick={() => progress.record(correct)} autoFocus>
-              next <span aria-hidden="true">→</span>
+              Next <span aria-hidden="true">→</span>
             </button>
           )}
         </div>

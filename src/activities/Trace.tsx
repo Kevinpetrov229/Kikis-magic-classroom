@@ -120,7 +120,7 @@ export function Trace({ album }: { album: Album }) {
               onClick={() => setMode("watch")}
               aria-pressed={mode === "watch"}
             >
-              <span className="press__hz">看笔顺</span> watch
+              Watch
             </button>
             <button
               type="button"
@@ -128,10 +128,10 @@ export function Trace({ album }: { album: Album }) {
               onClick={() => setMode("trace")}
               aria-pressed={mode === "trace"}
             >
-              <span className="press__hz">自己写</span> write it
+              Write it
             </button>
             <button type="button" className="press press--quiet" onClick={() => void speak(active, rate)}>
-              <span className="press__hz">听</span>
+              Listen
             </button>
           </div>
           <span className="label">
@@ -189,8 +189,8 @@ export function Trace({ album }: { album: Album }) {
               )}
               {status === "unavailable" && (
                 <p className="notice notice--teng" style={{ margin: 0 }}>
-                  Stroke data could not be fetched. The character is shown at writing size in a 田字格 so it can still
-                  be copied by hand.
+                  Stroke data could not be fetched. The character is still shown at writing size so it can be copied by
+                  hand.
                 </p>
               )}
               {mode === "trace" && status === "ready" && (
@@ -205,7 +205,7 @@ export function Trace({ album }: { album: Album }) {
 
         <div className="plate">
           <div className="plate__head">
-            <span className="label">Every character in {album.title}</span>
+            <span className="label">Every character in {album.titleEn || album.title}</span>
             <span className="label num">{characters.length}</span>
           </div>
           <div

@@ -1,10 +1,6 @@
 import { useSettings } from "../lib/settings";
 
-/**
- * The strip of study controls that sits at the foot of every activity, mirroring
- * where the reference tools put theirs. Each one changes what is annotated, not
- * what is asked.
- */
+/** Study toggles: what is annotated, not what is asked. */
 export function ControlStrip() {
   const { pinyin, english, rate, theme, set, toggle } = useSettings();
 
@@ -16,7 +12,7 @@ export function ControlStrip() {
         aria-pressed={pinyin}
         onClick={() => toggle("pinyin")}
       >
-        <span className="press__hz">拼音</span>
+        Pinyin
       </button>
       <button
         type="button"
@@ -24,7 +20,7 @@ export function ControlStrip() {
         aria-pressed={english}
         onClick={() => toggle("english")}
       >
-        <span className="press__hz">英文</span>
+        English
       </button>
       <button
         type="button"
@@ -40,7 +36,7 @@ export function ControlStrip() {
         onClick={() => set("theme", theme === "night" ? "day" : "night")}
         title="Day or night"
       >
-        <span className="press__hz">{theme === "night" ? "日" : "夜"}</span>
+        {theme === "night" ? "Light" : "Dark"}
       </button>
     </div>
   );

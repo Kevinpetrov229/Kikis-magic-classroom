@@ -54,18 +54,18 @@ export function AlbumCover({ album }: { album: Album }) {
         <Nameplate />
         <nav className="row row--wrap">
           <a className="press press--quiet" href="/library">
-            <span className="press__hz">书架</span>
+            Albums
           </a>
           {owned?.editKey && (
             <a className="press press--quiet" href={`/edit/${album.id}?k=${owned.editKey}`}>
-              <span className="press__hz">修改</span> edit
+              Edit
             </a>
           )}
           <a className="press press--quiet" href={`/new?from=${album.id}`}>
-            <span className="press__hz">刻一张</span> copy and add your words
+            Use with my words
           </a>
           <button type="button" className="press press--zhu" onClick={() => void copy("class", shareUrl)}>
-            <span className="press__hz">分享</span> {copied === "class" ? "link copied" : "copy class link"}
+            {copied === "class" ? "Link copied" : "Copy class link"}
           </button>
         </nav>
       </header>
@@ -73,11 +73,13 @@ export function AlbumCover({ album }: { album: Album }) {
       <div className="spread">
         <div className="stack">
           <div>
-            <h1 className="hz" style={{ fontSize: "clamp(2rem, 4.4vw, 3.2rem)", margin: 0 }}>
-              {album.title}
+            <h1 style={{ fontSize: "clamp(1.75rem, 4vw, 2.6rem)", margin: 0, fontWeight: 700 }}>
+              {album.titleEn}
             </h1>
             <div className="row row--wrap" style={{ marginTop: "var(--s2)" }}>
-              <span className="label">{album.titleEn}</span>
+              <span className="hz" style={{ fontSize: "1.25rem", color: "var(--zhu)" }}>
+                {album.title}
+              </span>
               <span className="label num">{totalSentences(album).toLocaleString()} sentences</span>
               <span className="label num">{album.frames.length} frames</span>
             </div>
@@ -95,10 +97,7 @@ export function AlbumCover({ album }: { album: Album }) {
               {chosen.map((chunk, i) => (chunk ? <Impression key={i} chunk={chunk} /> : <Ghost key={i} wide />))}
             </div>
             {complete && (
-              <div
-                className="row row--between row--wrap"
-                style={{ padding: "var(--s3) var(--s4)", border: "1px solid var(--edge)", borderTop: 0 }}
-              >
+              <div className="row row--between row--wrap">
                 <div style={{ minWidth: 0 }}>
                   <div className="py" style={{ fontSize: "var(--t-small)" }}>{joinPy(complete)}</div>
                   <div className="gloss">{joinEn(complete)}</div>
@@ -108,7 +107,7 @@ export function AlbumCover({ album }: { album: Album }) {
                   className="press press--zhu"
                   onClick={() => void speak(complete.map((c) => c.hz).join(""), rate)}
                 >
-                  <span className="press__hz">听</span>
+                  Listen
                 </button>
               </div>
             )}
@@ -126,7 +125,7 @@ export function AlbumCover({ album }: { album: Album }) {
                 <a className="index__item" key={activity.id} href={`/a/${album.id}/${activity.id}`}>
                   <span className="index__n">{String(i + 1).padStart(2, "0")}</span>
                   <span>
-                    <span className="index__hz">{activity.hz}</span> <span className="index__en">{activity.en}</span>
+                    <span className="index__en">{activity.en}</span>
                     <span className="gloss" style={{ display: "block" }}>
                       {activity.brief}
                     </span>
@@ -136,9 +135,9 @@ export function AlbumCover({ album }: { album: Album }) {
               <a className="index__item" href={`/a/${album.id}/read`}>
                 <span className="index__n">09</span>
                 <span>
-                  <span className="index__hz">读物</span> <span className="index__en">Reading texts</span>
+                  <span className="index__en">Reading texts</span>
                   <span className="gloss" style={{ display: "block" }}>
-                    Graded passages at five levels, restricted to this album's words.
+                    Graded passages at five levels, using this table’s words.
                   </span>
                 </span>
               </a>
@@ -146,7 +145,7 @@ export function AlbumCover({ album }: { album: Album }) {
           </div>
 
           <div className="notice">
-            <strong className="hz-ui">Send this to the class.</strong>
+            <strong>Send this to the class.</strong>
             <div className="num" style={{ wordBreak: "break-all", margin: "var(--s2) 0", color: "var(--ink)" }}>
               {shareUrl}
             </div>
@@ -154,11 +153,11 @@ export function AlbumCover({ album }: { album: Album }) {
           </div>
 
           <div className="notice">
-            <strong className="hz-ui">Your own vocabulary.</strong> Copy this table, replace the chunks with the words
-            your class is learning, then publish. Students get a new link; this album stays as it is.
+            <strong>Your own vocabulary.</strong> Copy this table, replace the chunks with the words your class is
+            learning, then publish. Students get a new link; this album stays as it is.
             <div style={{ marginTop: "var(--s3)" }}>
               <a className="press press--zhu" href={`/new?from=${album.id}`}>
-                <span className="press__hz">刻一张</span> copy and add your words
+                Use with my words
               </a>
             </div>
           </div>

@@ -121,12 +121,12 @@ export function Trapdoor({ album }: { album: Album }) {
               onClick={() => progress.record(complete && !revealed, Math.max(20, 140 - attempt * 40))}
               autoFocus
             >
-              next <span aria-hidden="true">→</span>
+              Next <span aria-hidden="true">→</span>
             </button>
           )}
           {fell && (
             <button type="button" className="press press--zhu" onClick={again} autoFocus>
-              <span className="press__hz">再来</span> start this row again
+              Try this row again
             </button>
           )}
         </div>
@@ -150,14 +150,14 @@ export function Trapdoor({ album }: { album: Album }) {
 
         {fell && (
           <p className="notice notice--zhu">
-            <strong className="hz-ui">掉下去了。</strong> Wrong stone for slot {step + 1}. The row is wiped; the hidden
-            sentence has not changed.
+            <strong>Not that one.</strong> Slot {step + 1} was incorrect. The row is wiped; the hidden sentence has not
+            changed.
           </p>
         )}
 
         {complete && !revealed && (
           <p className="notice">
-            <strong className="hz-ui">全对。</strong> {target.py} — {target.en}
+            <strong>All correct.</strong> {target.py} — {target.en}
           </p>
         )}
 

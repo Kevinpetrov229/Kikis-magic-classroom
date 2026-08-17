@@ -13,10 +13,7 @@ const OPENING: Selection = {
   chunkIds: ["我想送", "妈妈", "一盒巧克力", "，因为我觉得", "送这个礼物很不错。"],
 };
 
-/**
- * The first viewport is the mechanism, not a claim about it: the album arrives
- * with a sentence already stamped, and every stone on the page changes it.
- */
+/** Home is the builder itself: pick a chunk, hear the sentence, open a game. */
 export function Home() {
   const [selection, setSelection] = useState<Selection>(OPENING);
   const { rate } = useSettings();
@@ -40,48 +37,29 @@ export function Home() {
 
   return (
     <div className="shell">
-      <header className="row row--between row--wrap" style={{ marginBottom: "var(--s6)" }}>
+      <header className="row row--between row--wrap" style={{ marginBottom: "var(--s5)" }}>
         <Nameplate />
         <nav className="row row--wrap">
           <a className="press press--quiet" href="/library">
-            <span className="press__hz">书架</span> albums
+            Albums
           </a>
           <a className="press press--zhu" href="/new">
-            <span className="press__hz">刻一张</span> author an album
+            Make an album
           </a>
         </nav>
       </header>
 
-      <section className="spread" style={{ marginBottom: "var(--s7)" }}>
+      <section className="spread">
         <div className="stack">
-          <div>
-            <h1
-              className="hz"
-              style={{ fontSize: "clamp(2.1rem, 5.2vw, 3.9rem)", lineHeight: 1.18, margin: 0, letterSpacing: "0.02em" }}
-            >
-              一张表，
-              <br />
-              全班的练习。
-            </h1>
-            <p className="translation" style={{ marginTop: "var(--s3)", fontSize: "1.0625rem" }}>
-              One Mandarin sentence-builder table becomes dictation, translation both ways, typing, gap-fill, sentence
-              ordering, stroke-order writing and reading texts at five levels — all drawn from the vocabulary you
-              authored. Copy a ready-made table, put your class's words in, and send students one link. No accounts,
-              nothing to install.
-            </p>
+          <div className="row row--between row--wrap" style={{ marginBottom: "var(--s2)" }}>
+            <span className="label">
+              Click a box to change the sentence · {GIFTS.titleEn}
+            </span>
+            <a className="label" href={`/new?from=${GIFTS.id}`}>
+              Use this table with my words →
+            </a>
           </div>
-
-          <div>
-            <div className="row row--between row--wrap" style={{ marginBottom: "var(--s2)" }}>
-              <span className="label">
-                {GIFTS.title} · {GIFTS.titleEn}
-              </span>
-              <a className="label" href={`/new?from=${GIFTS.id}`}>
-                copy and add your words →
-              </a>
-            </div>
-            <AlbumTable album={GIFTS} selection={selection} onPick={pick} />
-          </div>
+          <AlbumTable album={GIFTS} selection={selection} onPick={pick} />
 
           <div className="line-dock">
             <div className="line" aria-live="polite">
@@ -90,10 +68,7 @@ export function Home() {
               )}
             </div>
             {complete && (
-              <div
-                className="row row--between row--wrap"
-                style={{ padding: "var(--s3) var(--s4)", border: "1px solid var(--edge)", borderTop: 0 }}
-              >
+              <div className="row row--between row--wrap">
                 <div style={{ minWidth: 0 }}>
                   <div className="py" style={{ fontSize: "var(--t-small)" }}>{joinPy(complete)}</div>
                   <div className="gloss">{joinEn(complete)}</div>
@@ -103,7 +78,7 @@ export function Home() {
                   className="press press--zhu"
                   onClick={() => void speak(complete.map((c) => c.hz).join(""), rate)}
                 >
-                  <span className="press__hz">听</span> hear it
+                  Listen
                 </button>
               </div>
             )}
@@ -113,8 +88,7 @@ export function Home() {
         <aside className="stack">
           <div className="plate">
             <div className="plate__head">
-              <span className="label">Practise this album</span>
-              <span className="label num">09</span>
+              <span className="label">Practice games</span>
             </div>
             <div style={{ padding: "0 var(--s4) var(--s3)" }}>
               <div className="index">
@@ -122,7 +96,6 @@ export function Home() {
                   <a className="index__item" key={activity.id} href={`/a/${GIFTS.id}/${activity.id}`}>
                     <span className="index__n">{String(i + 1).padStart(2, "0")}</span>
                     <span>
-                      <span className="index__hz">{activity.hz}</span>{" "}
                       <span className="index__en">{activity.en}</span>
                       <span className="gloss" style={{ display: "block" }}>
                         {activity.brief}
@@ -133,9 +106,9 @@ export function Home() {
                 <a className="index__item" href={`/a/${GIFTS.id}/read`}>
                   <span className="index__n">09</span>
                   <span>
-                    <span className="index__hz">读物</span> <span className="index__en">Reading texts</span>
+                    <span className="index__en">Reading texts</span>
                     <span className="gloss" style={{ display: "block" }}>
-                      Five graded texts written from this album's own words, with comprehension questions.
+                      Graded passages written from this table’s words.
                     </span>
                   </span>
                 </a>
@@ -145,17 +118,16 @@ export function Home() {
 
           <div className="plate">
             <div className="plate__head">
-              <span className="label">Ready-made albums</span>
+              <span className="label">More albums</span>
             </div>
             <div className="index" style={{ padding: "0 var(--s4) var(--s3)" }}>
               {SEED_ALBUMS.map((album, i) => (
                 <a className="index__item" key={album.id} href={`/a/${album.id}`}>
                   <span className="index__n">{String(i + 1).padStart(2, "0")}</span>
                   <span>
-                    <span className="index__hz">{album.title}</span>{" "}
                     <span className="index__en">{album.titleEn}</span>
                     <span className="gloss" style={{ display: "block" }}>
-                      {album.frames.length} frames · {totalSentences(album).toLocaleString()} sentences
+                      {totalSentences(album).toLocaleString()} sentences
                     </span>
                   </span>
                 </a>
@@ -163,9 +135,9 @@ export function Home() {
               <a className="index__item" href="/new">
                 <span className="index__n">+</span>
                 <span>
-                  <span className="index__hz">刻一张</span> <span className="index__en">Your own table</span>
+                  <span className="index__en">Make your own</span>
                   <span className="gloss" style={{ display: "block" }}>
-                    Copy a ready-made album or start empty, then paste your class's vocabulary.
+                    Copy a table or start empty, then paste your class’s words.
                   </span>
                 </span>
               </a>
@@ -175,58 +147,6 @@ export function Home() {
           <ControlStrip />
         </aside>
       </section>
-
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "1px",
-          background: "var(--edge-soft)",
-          border: "1px solid var(--edge)",
-        }}
-      >
-        {[
-          {
-            hz: "一格一格",
-            en: "How a table works",
-            body: "A frame is a row of columns. Take exactly one chunk from each column and the sentence is grammatical — every time. Two frames let an affirmative and a negative pattern live in one album without breaking each other.",
-          },
-          {
-            hz: "无需登录",
-            en: "No accounts",
-            body: "Publishing an album returns two links: one for the class and one only you hold, which is what lets you keep editing. Nothing is collected about anyone who opens either.",
-          },
-          {
-            hz: "字音义",
-            en: "Characters, sound, meaning",
-            body: "Every chunk carries hanzi, tone-marked pinyin and an English gloss, so the same authoring pays for listening, reading, typing and stroke-order practice at once.",
-          },
-          {
-            hz: "五个级别",
-            en: "Differentiated reading",
-            body: "Reading texts are constrained to the album's vocabulary and re-cast at five levels, so the strongest and the weakest reader in the room work on the same topic.",
-          },
-        ].map((card) => (
-          <div key={card.hz} style={{ background: "var(--bone)", padding: "var(--s4)" }}>
-            <div className="hz" style={{ fontSize: "1.375rem", color: "var(--zhu)" }}>
-              {card.hz}
-            </div>
-            <div className="label" style={{ marginBottom: "var(--s2)" }}>
-              {card.en}
-            </div>
-            <p className="gloss" style={{ margin: 0, fontSize: "var(--t-small)" }}>
-              {card.body}
-            </p>
-          </div>
-        ))}
-      </section>
-
-      <footer className="row row--between row--wrap" style={{ marginTop: "var(--s6)" }}>
-        <span className="label">句谱 · Kiki's Sentence Album · runs on Cloudflare Workers</span>
-        <a className="press press--zhu" href="/new">
-          <span className="press__hz">刻一张</span> author your own album
-        </a>
-      </footer>
     </div>
   );
 }

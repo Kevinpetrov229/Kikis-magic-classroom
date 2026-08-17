@@ -41,10 +41,14 @@ export function AlbumTable({ album, selection, onPick, quiet }: Props) {
         return (
           <div className="frame" key={frame.id}>
             <div className="frame__head">
-              <span className="hz" style={{ fontSize: "1.0625rem" }}>
-                {frame.label}
+              <span style={{ fontSize: "0.9375rem", fontWeight: 600 }}>
+                {frame.labelEn || frame.label}
               </span>
-              <span className="label">{frame.labelEn ?? ""}</span>
+              {frame.labelEn && frame.label ? (
+                <span className="hz" style={{ fontSize: "1.0625rem", color: "var(--zhu)" }}>
+                  {frame.label}
+                </span>
+              ) : null}
               <span className="label" style={{ marginLeft: "auto" }}>
                 {frame.columns.reduce((n, c) => n * c.chunks.length, 1).toLocaleString()} sentences
               </span>
@@ -53,8 +57,12 @@ export function AlbumTable({ album, selection, onPick, quiet }: Props) {
               {frame.columns.map((column, columnIndex) => (
                 <div className="column" key={column.id}>
                   <div className="column__head">
-                    <span className="column__hz">{column.label ?? `第${columnIndex + 1}格`}</span>
-                    <span className="label">{column.labelEn ?? ""}</span>
+                    <span className="column__hz">{column.labelEn || column.label || `Column ${columnIndex + 1}`}</span>
+                    {column.labelEn && column.label ? (
+                      <span className="hz" style={{ fontSize: "0.8125rem" }}>
+                        {column.label}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="column__stack">
                     {column.chunks.map((chunk) => {

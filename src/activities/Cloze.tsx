@@ -127,7 +127,7 @@ export function Cloze({ album }: { album: Album }) {
                     onClick={() => void speak(line.hz, rate)}
                     aria-label={`hear sentence ${i + 1}`}
                   >
-                    <span className="press__hz">听</span>
+                    Listen
                   </button>
                 </div>
               );
@@ -159,7 +159,7 @@ export function Cloze({ album }: { album: Album }) {
             {allFilled ? "every gap has a word — check the page" : `gap ${active + 1} is waiting`}
           </span>
           <button type="button" className="press press--zhu" onClick={check} disabled={!allFilled}>
-            <span className="press__hz">检查</span> check the page
+            Check answers
           </button>
         </div>
       }
