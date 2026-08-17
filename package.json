@@ -1,0 +1,30 @@
+{
+  "name": "kikis-magic-classroom",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "句谱 · Kiki's Sentence Album — a Mandarin sentence builder that generates listening, translation, typing and reading practice from one authored table.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && wrangler deploy",
+    "typegen": "wrangler types"
+  },
+  "dependencies": {
+    "hanzi-writer": "^3.7.3",
+    "pinyin-pro": "^3.29.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.52.1",
+    "@cloudflare/workers-types": "^5.20260816.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.1",
+    "wrangler": "^4.123.0"
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "title": "Choose the visual world — Kiki's Mandarin sentence builder",
+  "question": "The roll assigned 印谱 · The Seal Album. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "印谱 · The Seal Album",
+      "kicker": "THE ROLL",
+      "lineage": "篆刻 seal carving and the 印谱 impression album: pages of vermilion stamps in strict grids with tiny black annotations",
+      "thesis": "Every chunk of Chinese is a carved stone face, and building a sentence stamps it onto the page — so the builder refuses the neutral spreadsheet every sentence-builder tool ships.",
+      "palette": ["#E7EAE1", "#C9291B", "#191F1C", "#1C6B60", "#E0A02E"],
+      "materials": ["青田石 stone face", "朱砂 vermilion ink paste", "阴刻 / 阳刻 inverse states", "界格 dividing rules"],
+      "viewport": "A dense 印谱 page: the builder's columns as ruled cells of stone-faced chunks, the sentence line beneath as a row of wet vermilion impressions, empty slots drawn as blind-embossed ghost frames, hanzi at poster scale with pinyin pinned to each character.",
+      "risk": "Vermilion-on-pale can drift into the cream-paper-and-red-accent look every model ships; it only holds if the red commits as whole fields and the ground stays cool stone, never warm cream.",
+      "raised": [
+        {
+          "from": "Seven-segment display",
+          "raise": "Absence is drawn as deliberately as presence: an unfilled sentence slot is a blind-embossed 界格 ghost frame, never an invisible gap."
+        },
+        {
+          "from": "Metro typographic tiles",
+          "raise": "No generic button shells anywhere — the carved seal face is the control, and activity navigation is set in type."
+        },
+        {
+          "from": "Zoo guide map",
+          "raise": "Vermilion commits as flat unmodulated fields owning whole regions, not as an accent sprinkled over neutral."
+        },
+        {
+          "from": "Mesophotic deep dive",
+          "raise": "Difficulty is one governing axis; moving it recolours and re-ranks the whole vocabulary panel in step."
+        },
+        {
+          "from": "Tensegrity column",
+          "raise": "Pinyin and gloss are annotations pinned to the chunk they describe, and any generated sentence can be traced back to its exact path through the table."
+        }
+      ],
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "masthead 印谱", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "builder table · ruled stone cells", "x": 0, "y": 1, "w": 9, "h": 4 },
+          { "label": "sentence line · vermilion impressions", "x": 0, "y": 5, "w": 9, "h": 1, "accent": true },
+          { "label": "activity index", "x": 9, "y": 1, "w": 3, "h": 5 },
+          { "label": "reading text at level", "x": 0, "y": 6, "w": 7, "h": 4 },
+          { "label": "level axis + readout", "x": 7, "y": 6, "w": 5, "h": 4 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/assigned.webp"
+    },
+    {
+      "id": "model-pick",
+      "label": "田字格 · The Copybook",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "字帖 character-practice paper: red squares with faint crossed guides, model characters in red, tracing ghosts in grey",
+      "thesis": "The single sheet every Chinese learner on earth has written on, turned into the whole interface.",
+      "palette": ["#FBF9F3", "#C8342B", "#2A2E33", "#8FA9C4"],
+      "materials": ["gridded practice paper", "red model ink", "pencil ghost strokes"],
+      "viewport": "The builder laid out on ruled practice paper, each chunk sitting in its own red 田字格 cell with crossed guides showing through the hanzi.",
+      "risk": "It is the most obvious answer for a Chinese-learning product and the one most runs would land on, and as a whole-app world it is thin: grid paper plus red ink, with warm-cream drift built in.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "ruled sheet header", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "田字格 chunk grid", "x": 0, "y": 1, "w": 8, "h": 5, "accent": true },
+          { "label": "activity margin", "x": 8, "y": 1, "w": 4, "h": 5 },
+          { "label": "reading passage", "x": 0, "y": 6, "w": 12, "h": 4 }
+        ]
+      },
+      "comp": ".impeccable/mocks/decision/model-pick.webp"
+    },
+    {
+      "id": "challenger-specimen",
+      "label": "Interactive Type Specimen",
+      "verdict": "competitive",
+      "lineage": "variable-font specimen pages: one giant glyph, an axis slider, a breathing glyph grid, live coordinate readout",
+      "thesis": "The builder as a specimen of the language: one enormous character, tiny mono labels, and one slider that remaps the whole page.",
+      "palette": ["#FAFAF8", "#0D0D0D", "#D14A1F", "#83B3AE"],
+      "materials": ["near-white paper", "matte ink", "hairline rules"],
+      "viewport": "One hanzi at enormous scale over a glyph grid of every character in the builder, with a reading-level axis and a monospace readout of level, character count and known-vocabulary percentage.",
+      "case": "Fuses well on product clarity — hanzi genuinely wants poster scale and a live axis is exactly what a differentiated reading level is — but a teacher does not identify with a type foundry, so it holds one axis only.",
+      "risk": "Reads as a designer's toy rather than a classroom tool, and near-white plus one orange accent is itself a saturated pattern.",
+      "hero": "https://impeccable.style/worlds/cards/variable-font-specimen-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/variable-font-specimen.webp",
+      "comp": ".impeccable/mocks/decision/challenger-specimen.webp"
+    },
+    {
+      "id": "challenger-mahjong-note",
+      "label": "麻将牌 · Tile Rack",
+      "verdict": "competitive",
+      "lineage": "bone-and-bamboo mahjong tiles on green felt, engraved and painted characters, tiles racked and rearranged",
+      "thesis": "Chunks are tiles you rack and rearrange; a finished sentence is a winning hand.",
+      "palette": ["#EFE8D8", "#0E5C3F", "#B3271E", "#1C1C1A"],
+      "materials": ["bone tile face", "bamboo back", "engraved and painted hanzi", "green felt"],
+      "viewport": "A rack of tiles across the foot of the screen, the builder's columns above as suits, tiles sliding into a sentence hand with a genuine clack.",
+      "case": "Strong audience identification for Chinese game play and it maps cleanly onto click-to-build activities, but a tile rack cannot hold the dense authoring table a teacher needs, so it loses product clarity.",
+      "risk": "Skins a serious classroom tool as a gambling parlour, which some schools will reject outright.",
+      "comp": ".impeccable/mocks/decision/challenger-mahjong.webp"
+    },
+    {
+      "id": "challenger-sevenseg",
+      "label": "Seven-Segment Display",
+      "verdict": "declined",
+      "lineage": "bedside clocks, price totems, scoreboards — one eight-cell mask where unlit segments are designed too",
+      "thesis": "The interface as a rigid cell mask where only which segments light ever changes.",
+      "palette": ["#0B0B0B", "#FF2A1A", "#FFB000", "#2E2E2E"],
+      "materials": ["LED segment", "matte near-black", "ghost cell"],
+      "viewport": "Fixed digit slots on near-black, values slamming between states with nothing sliding.",
+      "case": "Hanzi cannot be drawn on an eight-cell mask, so the fusion destroys the product's only content; and a Mandarin classroom has no relationship to scoreboards.",
+      "kept": "Absence designed as deliberately as light.",
+      "risk": "Illegible for the writing system the product exists to teach.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock-hero.webp"
+    },
+    {
+      "id": "challenger-metro",
+      "label": "Metro Typographic Tiles",
+      "verdict": "declined",
+      "lineage": "flat tiles, giant cropped lowercase, colour fields as content, chrome deleted",
+      "thesis": "Delete the chrome; the type itself is the interface.",
+      "palette": ["#000000", "#00B7C3", "#E3008C", "#A4C400"],
+      "materials": ["flat tile", "no gradient", "white ink"],
+      "viewport": "A wide panorama of square tiles on pure black, headlines cropped off the right edge.",
+      "case": "Cropping display type off the canvas is fatal when the display type is hanzi a learner is decoding, and black-plus-cyan fights sustained character reading.",
+      "kept": "Chrome deleted: no button shells, type is the control.",
+      "risk": "Dated Windows-Phone canon with no link to the audience's world.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-metro-typographic-tiles-hero.webp"
+    },
+    {
+      "id": "challenger-guidemap",
+      "label": "Zoo & Gardens Guide Map",
+      "verdict": "declined",
+      "lineage": "a creased visitor guide map of swelling flat-colour lobes divided by coastline",
+      "thesis": "Every area is a lobe of flat colour and the coastline does all the dividing.",
+      "palette": ["#8ED462", "#F5F1E4", "#FF705D", "#2BA0FF"],
+      "materials": ["flat unmodulated colour", "no grain", "capsule labels"],
+      "viewport": "One green lobe swelling past two frame edges, a yellow capsule pinned to its coast.",
+      "case": "School-adjacent and childlike in the right way, but the sentence builder is an irreducibly strict grid; organic lobes would wreck the scanability the authoring table depends on.",
+      "kept": "Flat colour committing at page scale as content, not accent.",
+      "risk": "Reads as a primary-school wall display for a secondary-school tool.",
+      "hero": "https://impeccable.style/worlds/cards/aww2-zoo-gardens-guide-map-hero.webp"
+    },
+    {
+      "id": "challenger-mesophotic",
+      "label": "Mesophotic Deep Dive",
+      "verdict": "declined",
+      "lineage": "a technical descent down a volcanic island wall, dive-computer digits, marine snow",
+      "thesis": "One vertical depth axis governs light, colour, content and obligation together.",
+      "palette": ["#061826", "#0E4C63", "#7FD8E8", "#F2F5F3"],
+      "materials": ["abyssal ink", "marine-snow particles", "thermocline band"],
+      "viewport": "A vertical dive profile with observations pinned to their exact depth as the light drains.",
+      "case": "A scuba metaphor over Mandarin grammar is arbitrary — nothing in a teacher's or student's world connects — and the staged darkening actively harms sustained reading.",
+      "kept": "One governing axis that changes colour, content and state in step.",
+      "risk": "Atmosphere with no product truth underneath it.",
+      "hero": "https://impeccable.style/worlds/cards/rivers-tides-ocean-depths-mesophotic-deep-dive-hero.webp"
+    },
+    {
+      "id": "challenger-tensegrity",
+      "label": "Tensegrity Breathing Column",
+      "verdict": "declined",
+      "lineage": "carbon rods and red cord held apart by opposing forces, annotations pinned to nodes on leader lines",
+      "thesis": "Trace any load to its counterforce; layout obeys the strut network, not a page grid.",
+      "palette": ["#1A1A18", "#D8D5CE", "#D6291F", "#8C8C86"],
+      "materials": ["matte carbon rod", "red tension cord", "pale concrete"],
+      "viewport": "A floating column of rods with force values on leader lines, layout following the network.",
+      "case": "The traceability idea is real, but an engineering-studio world has no purchase on a language classroom, and a layout that obeys a force network cannot host the authoring table.",
+      "kept": "Annotations pinned to the node they describe, every relationship traceable.",
+      "risk": "Engineering cosplay over a humanities tool.",
+      "hero": "https://impeccable.style/worlds/cards/kinetic-sculpture-automata-tensegrity-breathing-column-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": true },
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "What a language-practice web app ships: white cards, a blue primary button, rounded chips, a friendly mascot.",
+    "palette": ["#FFFFFF", "#111827", "#2563EB", "#F59E0B"],
+    "materials": ["clean grid", "rounded cards", "flat icon set"],
+    "viewport": "A centred hero headline over a screenshot, feature cards in threes, a blue Get started button.",
+    "risk": "Indistinguishable from Quizlet, Duolingo clones and every other language tool, by design.",
+    "comp": ".impeccable/mocks/decision/canon.webp"
+  },
+  "steer": true
+}
