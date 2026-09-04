@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { SEED_ALBUMS } from "../data/seed";
+import { YEAR_BANDS, albumsForYear } from "../data/seed";
 import { totalSentences } from "../lib/builder";
 import { discard, shelf } from "../lib/store";
 import { Nameplate } from "../components/atoms";
 
-/** Ready-made albums, then whatever this browser has authored. */
+/** Ready-made albums by NSW year, then whatever this browser has authored. */
 export function Library() {
   const [mine, setMine] = useState(shelf());
 
@@ -17,43 +17,68 @@ export function Library() {
         </a>
       </header>
 
-      <div className="stack" style={{ gap: "var(--s6)" }}>
-        <section>
-          <div className="row row--between" style={{ marginBottom: "var(--s3)" }}>
-            <h1 style={{ fontSize: "1.5rem", margin: 0, fontWeight: 700 }}>Ready-made albums</h1>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: 1,
-              background: "var(--edge-soft)",
-              border: "1px solid var(--edge)",
-              borderRadius: "var(--radius)",
-              overflow: "hidden",
-            }}
-          >
-            {SEED_ALBUMS.map((album) => (
-              <div
-                key={album.id}
-                style={{ background: "var(--bone)", padding: "var(--s4)", display: "flex", flexDirection: "column", gap: "var(--s3)" }}
-              >
-                <a href={`/a/${album.id}`} style={{ textDecoration: "none" }}>
-                  <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--ink)" }}>{album.titleEn}</div>
-                  <div className="hz" style={{ fontSize: "1.125rem", color: "var(--zhu)", marginTop: 2 }}>
-                    {album.title}
+      <div className="stack" style={{ gap: "var(--s7)" }}>
+        <div>
+          <h1 style={{ fontSize: "1.5rem", margin: 0, fontWeight: 700 }}>Ready-made albums</h1>
+          <p className="gloss" style={{ margin: "var(--s2) 0 0" }}>
+            Years 7–10 follow 中文真棒 I–III (NSW Stage 4–5). Years 11–12 follow 中文真棒 IV and the Chinese Continuers
+            prescribed themes.
+          </p>
+        </div>
+
+        {YEAR_BANDS.map((band) => {
+          const albums = albumsForYear(band.year);
+          return (
+            <section key={band.year} id={`year-${band.year}`}>
+              <div className="row row--between row--wrap" style={{ marginBottom: "var(--s3)" }}>
+                <div>
+                  <h2 style={{ fontSize: "1.25rem", margin: 0, fontWeight: 700 }}>{band.label}</h2>
+                  <div className="label" style={{ marginTop: 4 }}>
+                    {band.stage} · {band.course}
                   </div>
-                  <div className="gloss" style={{ marginTop: "var(--s2)" }}>
-                    {totalSentences(album).toLocaleString()} sentences
-                  </div>
-                </a>
-                <a className="press press--quiet" href={`/new?from=${album.id}`}>
-                  Use with my words
-                </a>
+                </div>
+                <span className="gloss">{band.book}</span>
               </div>
-            ))}
-          </div>
-        </section>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                  gap: 1,
+                  background: "var(--edge-soft)",
+                  border: "1px solid var(--edge)",
+                  borderRadius: "var(--radius)",
+                  overflow: "hidden",
+                }}
+              >
+                {albums.map((album) => (
+                  <div
+                    key={album.id}
+                    style={{
+                      background: "var(--bone)",
+                      padding: "var(--s4)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--s3)",
+                    }}
+                  >
+                    <a href={`/a/${album.id}`} style={{ textDecoration: "none" }}>
+                      <div style={{ fontSize: "1.125rem", fontWeight: 700, color: "var(--ink)" }}>{album.titleEn}</div>
+                      <div className="hz" style={{ fontSize: "1.0625rem", color: "var(--zhu)", marginTop: 2 }}>
+                        {album.title}
+                      </div>
+                      <div className="gloss" style={{ marginTop: "var(--s2)" }}>
+                        {album.source} · {totalSentences(album).toLocaleString()} sentences
+                      </div>
+                    </a>
+                    <a className="press press--quiet" href={`/new?from=${album.id}`}>
+                      Use with my words
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
 
         <section>
           <div className="row row--between" style={{ marginBottom: "var(--s3)" }}>
@@ -63,13 +88,11 @@ export function Library() {
 
           {!mine.length ? (
             <div className="notice">
-              Nothing here yet. Copy a ready-made table and put your class’s words in, or start empty. Publishing gives
-              you a class link plus a private edit link — keep that edit link; it is the only way back in from another
-              device.
+              Nothing here yet. Copy a year-level table and put your class’s words in, or start empty.
               <div className="row row--wrap" style={{ marginTop: "var(--s3)" }}>
-                {SEED_ALBUMS.map((album) => (
-                  <a key={album.id} className="press" href={`/new?from=${album.id}`}>
-                    {album.titleEn}
+                {YEAR_BANDS.map((band) => (
+                  <a key={band.year} className="press" href={`#year-${band.year}`}>
+                    {band.label}
                   </a>
                 ))}
                 <a className="press press--quiet" href="/new">

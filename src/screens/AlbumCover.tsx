@@ -80,8 +80,9 @@ export function AlbumCover({ album }: { album: Album }) {
               <span className="hz" style={{ fontSize: "1.25rem", color: "var(--zhu)" }}>
                 {album.title}
               </span>
+              {album.year && <span className="label">Year {album.year}</span>}
+              {album.source && <span className="label">{album.source}</span>}
               <span className="label num">{totalSentences(album).toLocaleString()} sentences</span>
-              <span className="label num">{album.frames.length} frames</span>
             </div>
             {album.note && (
               <p className="translation" style={{ marginTop: "var(--s3)" }}>

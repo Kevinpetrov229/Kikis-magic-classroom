@@ -43,7 +43,7 @@ export function Seal({
       disabled={disabled || state === "spent"}
       title={title}
     >
-      <span className="seal__hz">{chunk.hz}</span>
+      <span className="seal__hz" lang="zh-CN">{chunk.hz}</span>
       {py && chunk.py && <span className="seal__py">{chunk.py}</span>}
       {en && chunk.en && <span className="seal__en">{chunk.en}</span>}
     </button>

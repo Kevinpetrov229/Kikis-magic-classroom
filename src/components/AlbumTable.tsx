@@ -1,5 +1,15 @@
-import type { Album, Chunk, Frame } from "../lib/types";
+import type { Album, Chunk, Column, Frame } from "../lib/types";
 import { Seal } from "./atoms";
+
+function isPunctColumn(column: Column): boolean {
+  return column.chunks.every((chunk) => /^[。．.！？!?]$/.test(chunk.hz.trim()));
+}
+
+function visibleColumns(frame: Frame): { column: Column; index: number }[] {
+  return frame.columns
+    .map((column, index) => ({ column, index }))
+    .filter(({ column }) => !isPunctColumn(column));
+}
 
 /**
  * Columns are weighted by their longest chunk. An opinion clause of eight
@@ -7,8 +17,8 @@ import { Seal } from "./atoms";
  * width without breaking a line mid-phrase.
  */
 function columnWidths(frame: Frame): string {
-  return frame.columns
-    .map((column) => {
+  return visibleColumns(frame)
+    .map(({ column }) => {
       const longest = column.chunks.reduce((n, chunk) => Math.max(n, chunk.hz.length), 1);
       const weight = Math.min(2.4, Math.max(0.75, longest / 4.5));
       return `minmax(0, ${weight.toFixed(2)}fr)`;
@@ -50,19 +60,15 @@ export function AlbumTable({ album, selection, onPick, quiet }: Props) {
                 </span>
               ) : null}
               <span className="label" style={{ marginLeft: "auto" }}>
-                {frame.columns.reduce((n, c) => n * c.chunks.length, 1).toLocaleString()} sentences
+                {visibleColumns(frame).reduce((n, { column }) => n * column.chunks.length, 1).toLocaleString()} sentences
               </span>
             </div>
             <div className="frame__grid" style={{ gridTemplateColumns: columnWidths(frame) }}>
-              {frame.columns.map((column, columnIndex) => (
+              {visibleColumns(frame).map(({ column, index: columnIndex }) => (
                 <div className="column" key={column.id}>
                   <div className="column__head">
-                    <span className="column__hz">{column.labelEn || column.label || `Column ${columnIndex + 1}`}</span>
-                    {column.labelEn && column.label ? (
-                      <span className="hz" style={{ fontSize: "0.8125rem" }}>
-                        {column.label}
-                      </span>
-                    ) : null}
+                    <span className="column__en">{column.labelEn || column.label || `Column ${columnIndex + 1}`}</span>
+                    {column.labelEn && column.label ? <span className="column__hz">{column.label}</span> : null}
                   </div>
                   <div className="column__stack">
                     {column.chunks.map((chunk) => {

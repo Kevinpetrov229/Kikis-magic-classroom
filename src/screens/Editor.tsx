@@ -4,7 +4,7 @@ import { newId, rng, sampleSentences, totalSentences, cloneAlbum } from "../lib/
 import { toPinyin } from "../lib/pinyin";
 import { discard, keep, publish, republish, shelfEntry } from "../lib/store";
 import { Nameplate } from "../components/atoms";
-import { SEED_ALBUMS } from "../data/seed";
+import { YEAR_BANDS, albumsForYear } from "../data/seed";
 
 const blankChunk = (): Chunk => ({ id: newId(), hz: "", py: "", en: "" });
 
@@ -182,22 +182,29 @@ export function Editor({ initial, clonedFrom }: { initial: Album; clonedFrom?: s
 
       {!started && !copiedFrom && (
         <div className="notice" style={{ marginBottom: "var(--s4)" }}>
-          <strong>Start from a ready-made table.</strong> Copy one below, then replace the chunks with your class’s
-          words. Or fill the empty columns from scratch.
+          <strong>Start from a ready-made table.</strong> Copy a NSW year-level table, then replace the chunks with your
+          class’s words. Or fill the empty columns from scratch.
           <div className="row row--wrap" style={{ marginTop: "var(--s3)" }}>
-            {SEED_ALBUMS.map((seed) => (
-              <button
-                key={seed.id}
-                type="button"
-                className="press"
-                onClick={() => {
-                  setCopiedFrom(seed.titleEn);
-                  setAlbum(cloneAlbum(seed));
-                }}
-              >
-                {seed.titleEn}
-              </button>
-            ))}
+            {YEAR_BANDS.map((band) => {
+              const seed = albumsForYear(band.year)[0];
+              if (!seed) return null;
+              return (
+                <button
+                  key={band.year}
+                  type="button"
+                  className="press"
+                  onClick={() => {
+                    setCopiedFrom(seed.titleEn);
+                    setAlbum(cloneAlbum(seed));
+                  }}
+                >
+                  {band.label} · {seed.titleEn}
+                </button>
+              );
+            })}
+            <a className="press press--quiet" href="/library">
+              All lessons
+            </a>
           </div>
         </div>
       )}

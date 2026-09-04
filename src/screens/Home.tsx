@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import type { Chunk } from "../lib/types";
-import { GIFTS, ACTIVITIES, SEED_ALBUMS } from "../data/seed";
+import type { Chunk, YearLevel } from "../lib/types";
+import { ACTIVITIES, HOME_ALBUM, YEAR_BANDS, albumsForYear } from "../data/seed";
 import { joinEn, joinPy, totalSentences } from "../lib/builder";
 import { speak } from "../lib/audio";
 import { useSettings } from "../lib/settings";
@@ -8,26 +8,36 @@ import { AlbumTable, type Selection } from "../components/AlbumTable";
 import { ControlStrip } from "../components/ControlStrip";
 import { Ghost, Impression, Nameplate } from "../components/atoms";
 
-const OPENING: Selection = {
-  frameId: "want",
-  chunkIds: ["我想送", "妈妈", "一盒巧克力", "，因为我觉得", "送这个礼物很不错。"],
-};
+function openingOf(album: { frames: { id: string; columns: { chunks: { id: string }[] }[] }[] }): Selection {
+  const frame = album.frames[0];
+  return { frameId: frame.id, chunkIds: frame.columns.map((column) => column.chunks[0].id) };
+}
 
-/** Home is the builder itself: pick a chunk, hear the sentence, open a game. */
+/** Home is the builder itself: pick a year, change a chunk, open a game. */
 export function Home() {
-  const [selection, setSelection] = useState<Selection>(OPENING);
+  const [year, setYear] = useState<YearLevel>(7);
+  const band = YEAR_BANDS.find((item) => item.year === year)!;
+  const yearAlbums = albumsForYear(year);
+  const album = yearAlbums[0] ?? HOME_ALBUM;
+  const [selection, setSelection] = useState<Selection>(() => openingOf(album));
   const { rate } = useSettings();
 
   const chosen = useMemo(() => {
-    const frame = GIFTS.frames.find((f) => f.id === selection.frameId) ?? GIFTS.frames[0];
+    const frame = album.frames.find((f) => f.id === selection.frameId) ?? album.frames[0];
     return frame.columns.map((column, i) => column.chunks.find((c) => c.id === selection.chunkIds[i]) ?? null);
-  }, [selection]);
+  }, [album, selection]);
 
   const complete = chosen.every(Boolean) ? (chosen as Chunk[]) : null;
 
+  function pickYear(next: YearLevel) {
+    setYear(next);
+    const first = albumsForYear(next)[0] ?? HOME_ALBUM;
+    setSelection(openingOf(first));
+  }
+
   function pick(frameId: string, columnIndex: number, chunk: Chunk) {
     setSelection((current) => {
-      const frame = GIFTS.frames.find((f) => f.id === frameId)!;
+      const frame = album.frames.find((f) => f.id === frameId)!;
       const ids =
         current.frameId === frameId ? current.chunkIds.slice() : frame.columns.map(() => null as unknown as string);
       ids[columnIndex] = chunk.id;
@@ -49,17 +59,31 @@ export function Home() {
         </nav>
       </header>
 
+      <div className="row row--wrap" style={{ marginBottom: "var(--s4)", gap: "var(--s2)" }}>
+        {YEAR_BANDS.map((item) => (
+          <button
+            key={item.year}
+            type="button"
+            className={`press ${year === item.year ? "press--zhu" : "press--quiet"}`}
+            aria-pressed={year === item.year}
+            onClick={() => pickYear(item.year)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
       <section className="spread">
         <div className="stack">
           <div className="row row--between row--wrap" style={{ marginBottom: "var(--s2)" }}>
             <span className="label">
-              Click a box to change the sentence · {GIFTS.titleEn}
+              {band.stage} · {band.course} · {album.titleEn}
             </span>
-            <a className="label" href={`/new?from=${GIFTS.id}`}>
+            <a className="label" href={`/new?from=${album.id}`}>
               Use this table with my words →
             </a>
           </div>
-          <AlbumTable album={GIFTS} selection={selection} onPick={pick} />
+          <AlbumTable album={album} selection={selection} onPick={pick} />
 
           <div className="line-dock">
             <div className="line" aria-live="polite">
@@ -93,7 +117,7 @@ export function Home() {
             <div style={{ padding: "0 var(--s4) var(--s3)" }}>
               <div className="index">
                 {ACTIVITIES.map((activity, i) => (
-                  <a className="index__item" key={activity.id} href={`/a/${GIFTS.id}/${activity.id}`}>
+                  <a className="index__item" key={activity.id} href={`/a/${album.id}/${activity.id}`}>
                     <span className="index__n">{String(i + 1).padStart(2, "0")}</span>
                     <span>
                       <span className="index__en">{activity.en}</span>
@@ -103,12 +127,12 @@ export function Home() {
                     </span>
                   </a>
                 ))}
-                <a className="index__item" href={`/a/${GIFTS.id}/read`}>
+                <a className="index__item" href={`/a/${album.id}/read`}>
                   <span className="index__n">09</span>
                   <span>
                     <span className="index__en">Reading texts</span>
                     <span className="gloss" style={{ display: "block" }}>
-                      Graded passages written from this table’s words.
+                      Graded from Year 7 to Years 11–12 Continuers, using this table’s words.
                     </span>
                   </span>
                 </a>
@@ -118,26 +142,26 @@ export function Home() {
 
           <div className="plate">
             <div className="plate__head">
-              <span className="label">More albums</span>
+              <span className="label">{band.label} albums</span>
             </div>
             <div className="index" style={{ padding: "0 var(--s4) var(--s3)" }}>
-              {SEED_ALBUMS.map((album, i) => (
-                <a className="index__item" key={album.id} href={`/a/${album.id}`}>
+              {yearAlbums.map((item, i) => (
+                <a className="index__item" key={item.id} href={`/a/${item.id}`}>
                   <span className="index__n">{String(i + 1).padStart(2, "0")}</span>
                   <span>
-                    <span className="index__en">{album.titleEn}</span>
+                    <span className="index__en">{item.titleEn}</span>
                     <span className="gloss" style={{ display: "block" }}>
-                      {totalSentences(album).toLocaleString()} sentences
+                      {item.source} · {totalSentences(item).toLocaleString()} sentences
                     </span>
                   </span>
                 </a>
               ))}
-              <a className="index__item" href="/new">
-                <span className="index__n">+</span>
+              <a className="index__item" href="/library">
+                <span className="index__n">→</span>
                 <span>
-                  <span className="index__en">Make your own</span>
+                  <span className="index__en">All years</span>
                   <span className="gloss" style={{ display: "block" }}>
-                    Copy a table or start empty, then paste your class’s words.
+                    Years 7–12, Stage 4 to Continuers.
                   </span>
                 </span>
               </a>

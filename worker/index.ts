@@ -1,23 +1,16 @@
 import type { Album, ReadingLevel, ReadingText, Sentence } from "../src/lib/types";
 import { READING_LEVELS } from "../src/lib/types";
-import { allChunks, coverage, rng, sampleSentences, sentenceDistractors, shuffle } from "../src/lib/builder";
+import { allChunks, coverage, rng, sampleSentences, sentenceDistractors, shuffle, totalSentences } from "../src/lib/builder";
 
 interface Env {
   ASSETS: Fetcher;
   AI: Ai;
   ALBUM: KVNamespace;
+  NVIDIA_API_KEY?: string;
 }
 
-/* Ordered by Chinese quality first, then availability. The first model that
-   answers wins; a whole chain failing falls back to the offline composer. */
-// Ordered by how well each writes graded Chinese prose, not by size. The chain
-// exists because a model can be busy, so the next one is asked before the
-// offline composer is.
-const MODEL_CHAIN = [
-  "@cf/qwen/qwen3-30b-a3b-fp8",
-  "@cf/deepseek-ai/deepseek-v4-flash-0731",
-  "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-] as const;
+const NVIDIA_MODEL = "deepseek-ai/deepseek-v4-flash-0731";
+const NVIDIA_CHAT_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 
 const MAX_ALBUM_BYTES = 96 * 1024;
 const MAX_SPEAK_CHARS = 220;
@@ -125,7 +118,7 @@ async function reading(request: Request, env: Env): Promise<Response> {
 
   const signature = await sha256(
     JSON.stringify({
-      v: 2,
+      v: 3,
       title: album.title,
       vocab: allChunks(album).map((c) => c.hz),
       level,
@@ -142,85 +135,190 @@ async function reading(request: Request, env: Env): Promise<Response> {
   return json({ text: generated, cached: false });
 }
 
-async function generateReading(env: Env, album: Album, level: ReadingLevel): Promise<ReadingText | null> {
-  const spec = READING_LEVELS.find((l) => l.id === level) ?? READING_LEVELS[0];
-  const vocab = allChunks(album);
-  const vocabList = vocab.map((c) => `${c.hz} (${c.py}) = ${c.en}`).join("\n");
-  const examples = sampleSentences(album, 6, rng(album.title + level))
+type LevelSpec = (typeof READING_LEVELS)[number];
+
+function hanziCount(text: string): number {
+  return text.replace(/[^\u4e00-\u9fff]/g, "").length;
+}
+
+function readingPrompt(album: Album, spec: LevelSpec, extra = ""): { system: string; user: string } {
+  const vocabList = allChunks(album)
+    .map((c) => `${c.hz} (${c.py}) = ${c.en}`)
+    .join("\n");
+  const examples = sampleSentences(album, 6, rng(album.title + String(spec.id)))
     .map((s) => s.hz)
     .join("\n");
 
   const system = [
-    "You are an experienced Mandarin teacher writing a graded reader passage for a secondary-school class.",
-    "You write only simplified Chinese for the passage. Every sentence must be natural, idiomatic and grammatically correct.",
-    "You stay inside the supplied vocabulary. You may add only high-frequency function words (的, 了, 也, 和, 还, 很, 但是, 因为, 所以, 然后, 我们, 他们, 每天, 这, 那, 有, 是, 不, 在, 会, 想) and numbers.",
-    "You never invent facts about real people, schools or brands.",
-    "Reply with one JSON object and nothing else.",
+    "You write NSW school graded readers in simplified Chinese.",
+    "Return one JSON object and nothing else: no markdown, no analysis, no chain of thought, no text before or after the object.",
+    "The passage must be natural, idiomatic and grammatically correct.",
+    "Stay inside the supplied vocabulary plus the allowed function words and numbers for this level.",
+    "Do not invent facts about real people, schools or brands.",
   ].join(" ");
 
   const user = [
     `Topic: ${album.title} (${album.titleEn}).`,
-    `Level: ${spec.hz} / ${spec.en}. ${spec.desc} Aim for ${spec.chars} Chinese characters.`,
-    "",
+    `NSW year: ${spec.hz} / ${spec.en}.`,
+    `Character count of body (hanzi only, ignore punctuation and Latin): between ${spec.min} and ${spec.max}. Aim for the middle of that range.`,
+    `Grammar for this level: ${spec.grammar}`,
+    `Allowed function words: ${spec.glue}. Numbers are allowed.`,
     "Vocabulary the class already knows:",
     vocabList,
-    "",
     "Sentence patterns from the class's sentence builder:",
     examples,
-    "",
-    "Write a first-person passage a student of this level can read without a dictionary.",
-    "Then write four multiple-choice comprehension questions in Chinese, each with an English translation and exactly three options, testing detail rather than guesswork.",
-    "",
+    "Write a first-person passage a student of this year can read without a dictionary.",
+    "Use the grammar named for this level. Do not use structures listed as forbidden.",
+    "Then write four multiple-choice comprehension questions in Chinese, each with an English translation and exactly three options, testing a detail from the passage.",
+    extra,
     'JSON shape: {"title":"中文标题","titleEn":"English title","body":"passage in simplified Chinese with 。，！？ punctuation","translation":"a plain English translation","questions":[{"q":"中文问题","qEn":"English question","options":["选项一","选项二","选项三"],"answer":0}]}',
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  for (const model of MODEL_CHAIN) {
-    try {
-      const result = (await env.AI.run(model as keyof AiModels, {
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-        max_tokens: 2000,
-        temperature: 0.6,
-      } as never)) as { response?: string };
-      const text = extractJson(result?.response ?? "");
-      if (!text) {
-        console.warn(`reading: ${model} returned no JSON`);
-        continue;
-      }
-      const validated = validateReading(text, level, album);
-      if (validated) return validated;
-      console.warn(`reading: ${model} failed the grading check`);
-    } catch (err) {
-      console.warn(`reading: ${model} unavailable — ${err instanceof Error ? err.message : String(err)}`);
-    }
+  return { system, user };
+}
+
+async function generateReading(env: Env, album: Album, level: ReadingLevel): Promise<ReadingText | null> {
+  const key = env.NVIDIA_API_KEY;
+  if (!key) {
+    console.warn("reading: NVIDIA_API_KEY is not set");
+    return null;
   }
-  return null;
+
+  const spec = READING_LEVELS.find((l) => l.id === level) ?? READING_LEVELS[0];
+  const maxTokens = level <= 2 ? 1200 : level <= 4 ? 1800 : 2400;
+  const prompt = readingPrompt(album, spec);
+
+  const first = await callDeepseek(key, prompt, maxTokens);
+  if (!first) return null;
+  const accepted = validateReading(first, level, album);
+  if (accepted) return accepted;
+
+  const n = typeof first.body === "string" ? hanziCount(first.body) : 0;
+  const retry = await callDeepseek(
+    key,
+    readingPrompt(
+      album,
+      spec,
+      `Rewrite. body must contain ${spec.min}–${spec.max} Chinese characters. The previous body had ${n}. JSON only.`,
+    ),
+    maxTokens,
+  );
+  return retry ? validateReading(retry, level, album) : null;
+}
+
+interface NvidiaMessage {
+  content?: string | Array<{ type?: string; text?: string }>;
+  reasoning_content?: string;
+}
+
+async function callDeepseek(
+  apiKey: string,
+  prompt: { system: string; user: string },
+  maxTokens: number,
+): Promise<Record<string, unknown> | null> {
+  const payload: Record<string, unknown> = {
+    model: NVIDIA_MODEL,
+    messages: [
+      { role: "system", content: prompt.system },
+      { role: "user", content: prompt.user },
+    ],
+    temperature: 0.4,
+    max_tokens: maxTokens,
+    reasoning_effort: "none",
+    chat_template_kwargs: { thinking: false },
+    stream: false,
+  };
+
+  try {
+    const headers = {
+      Authorization: `Bearer ${apiKey}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+    let response = await fetch(NVIDIA_CHAT_URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(45_000),
+    });
+
+    if (response.status === 422) {
+      delete payload.reasoning_effort;
+      payload.chat_template_kwargs = { thinking: false };
+      response = await fetch(NVIDIA_CHAT_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(45_000),
+      });
+    }
+
+    if (response.status === 529) {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      response = await fetch(NVIDIA_CHAT_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(45_000),
+      });
+    }
+
+    if (!response.ok) {
+      const detail = (await response.text()).slice(0, 240);
+      console.warn(`reading: nvidia ${response.status} ${detail}`);
+      return null;
+    }
+
+    const data = (await response.json()) as { choices?: { message?: NvidiaMessage }[] };
+    const parsed = extractJson(messageText(data.choices?.[0]?.message));
+    if (!parsed) console.warn("reading: nvidia returned no JSON");
+    return parsed;
+  } catch (err) {
+    console.warn(`reading: nvidia failed — ${err instanceof Error ? err.message : String(err)}`);
+    return null;
+  }
+}
+
+function messageText(message: NvidiaMessage | undefined): string {
+  if (!message) return "";
+  const { content } = message;
+  let text = "";
+  if (typeof content === "string") text = content;
+  else if (Array.isArray(content)) {
+    text = content.map((part) => (typeof part.text === "string" ? part.text : "")).join("");
+  }
+  return text.trim() ? text : message.reasoning_content ?? "";
 }
 
 function extractJson(raw: string): Record<string, unknown> | null {
-  // reasoning models narrate before they answer, and that narration contains
-  // braces often enough to swallow the object if it is left in
-  const spoken = raw.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/<think>[\s\S]*/g, "");
-  const fenced = spoken.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const candidate = (fenced ? fenced[1] : spoken).trim();
-  const start = candidate.indexOf("{");
-  const end = candidate.lastIndexOf("}");
+  const spoken = raw
+    .replace(/<think>[\s\S]*?<\/think>/g, "")
+    .replace(/<think>[\s\S]*/g, "")
+    .replace(/```(?:json)?/g, "")
+    .replace(/```/g, "")
+    .trim();
+  const start = spoken.indexOf("{");
+  const end = spoken.lastIndexOf("}");
   if (start === -1 || end <= start) return null;
   try {
-    return JSON.parse(candidate.slice(start, end + 1));
+    return JSON.parse(spoken.slice(start, end + 1));
   } catch {
     return null;
   }
 }
 
 function validateReading(data: Record<string, unknown>, level: ReadingLevel, album: Album): ReadingText | null {
+  const spec = READING_LEVELS.find((l) => l.id === level) ?? READING_LEVELS[0];
   const body = typeof data.body === "string" ? data.body.trim() : "";
-  if (body.replace(/[^\u4e00-\u9fff]/g, "").length < 40) return null;
+  const chars = hanziCount(body);
+  const floor = Math.floor(spec.min * 0.9);
+  const ceiling = Math.ceil(spec.max * 1.12);
+  if (chars < floor || chars > ceiling) return null;
 
   // A passage where most characters are strangers is not a graded reader.
-  if (coverage(album, body).pct < 55) return null;
+  if (coverage(album, body).pct < 50) return null;
 
   const questions = Array.isArray(data.questions)
     ? (data.questions as Record<string, unknown>[])
@@ -252,18 +350,38 @@ function validateReading(data: Record<string, unknown>, level: ReadingLevel, alb
 
 /**
  * The offline composer. It joins real album sentences with level-appropriate
- * connectives, so a text always exists even when Workers AI is unreachable —
- * and it can only ever produce Chinese the teacher authored herself.
+ * connectives, so a text always exists even when the writing model is
+ * unreachable — and it can only ever produce Chinese the teacher authored.
  */
 function composeReading(album: Album, level: ReadingLevel): ReadingText {
+  const spec = READING_LEVELS.find((l) => l.id === level) ?? READING_LEVELS[0];
   const r = rng(`${album.title}:${level}:offline`);
-  const counts: Record<number, number> = { 1: 4, 2: 6, 3: 8, 4: 10, 5: 13 };
-  const sentences = sampleSentences(album, counts[level] ?? 6, r);
-  const openers = ["", "首先，", "另外，", "还有，", "同时，", "最后，"];
+  const pool = sampleSentences(album, Math.min(24, totalSentences(album)), r);
+  const sentences: Sentence[] = [];
+  let chars = 0;
+  for (const sentence of pool) {
+    const next = hanziCount(sentence.hz);
+    if (sentences.length && chars + next > spec.max) break;
+    sentences.push(sentence);
+    chars += next;
+    if (chars >= spec.min) break;
+  }
+  if (!sentences.length && pool[0]) sentences.push(pool[0]);
+
+  const openers =
+    level >= 5
+      ? ["", "不但如此，", "对年轻人来说，", "如果可以的话，", "为了这个，", "最后，"]
+      : level >= 4
+        ? ["", "虽然这样，但是", "另外，", "所以", "然后，", "最后，"]
+        : level >= 3
+          ? ["", "因为这样，", "所以", "然后，", "另外，", "最后，"]
+          : level >= 2
+            ? ["", "还有，", "", "还有，", "", ""]
+            : ["", "", "", "", "", ""];
   const paragraphs: string[] = [];
 
   sentences.forEach((s, i) => {
-    const lead = level >= 3 ? openers[i % openers.length] : "";
+    const lead = openers[i % openers.length];
     const line = lead + s.hz + (/[。！？]$/.test(s.hz) ? "" : "。");
     if (i % 4 === 0) paragraphs.push(line);
     else paragraphs[paragraphs.length - 1] += line;

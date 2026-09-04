@@ -53,22 +53,36 @@ export function pathChunks(album: Album, path: Path): Chunk[] {
   return frame.columns.map((col, i) => chunkOf(col, path.chunkIds[i]));
 }
 
+function isPunctOnly(text: string): boolean {
+  return /^[。．.！？!?]?$/.test(text.trim());
+}
+
 /** Hanzi runs together the way Chinese is actually written — no inserted spaces. */
 export function joinHz(chunks: Chunk[]): string {
-  return chunks.map((c) => c.hz).join("");
+  const text = chunks
+    .map((c) => c.hz)
+    .filter((hz) => !isPunctOnly(hz))
+    .join("")
+    .replace(/。+$/, "");
+  return /[。！？]$/.test(text) ? text : `${text}。`;
 }
 
 export function joinPy(chunks: Chunk[]): string {
   return chunks
+    .filter((c) => !isPunctOnly(c.hz))
     .map((c) => c.py)
     .join(" ")
     .replace(/\s+([,.，。？！])/g, "$1");
 }
 
 export function joinEn(chunks: Chunk[]): string {
-  const raw = chunks.map((c) => c.en.trim()).join(" ");
-  const trimmed = raw.replace(/\s+/g, " ").replace(/\s+([,.?!])/g, "$1");
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  const raw = chunks
+    .filter((c) => !isPunctOnly(c.hz) && !isPunctOnly(c.en))
+    .map((c) => c.en.trim())
+    .join(" ");
+  const trimmed = raw.replace(/\s+/g, " ").replace(/\s+([,.?!])/g, "$1").replace(/\.+$/, ".");
+  const closed = /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+  return closed.charAt(0).toUpperCase() + closed.slice(1);
 }
 
 export function toSentence(album: Album, path: Path): Sentence {
@@ -119,7 +133,7 @@ export function totalSentences(album: Album): number {
 }
 
 function written(chunks: Chunk[]): Chunk[] {
-  return chunks.filter((c) => c.hz.trim().length > 0);
+  return chunks.filter((c) => c.hz.trim().length > 0 && !isPunctOnly(c.hz));
 }
 
 /* ---------- distractors --------------------------------------------------- */
@@ -244,6 +258,8 @@ export function cloneAlbum(album: Album): Album {
     title: album.title,
     titleEn: album.titleEn,
     note: album.note,
+    year: album.year,
+    source: album.source,
     created: now,
     updated: now,
     frames: album.frames.map((frame) => ({

@@ -15,7 +15,12 @@ type Cast = Record<number, ReadingText>;
  * for any level not yet on the page.
  */
 export function Reader({ album }: { album: Album }) {
-  const [level, setLevel] = useState<ReadingLevel>(2);
+  const [level, setLevel] = useState<ReadingLevel>(() => {
+    const year = album.year;
+    if (!year) return 2;
+    if (year >= 11) return 5;
+    return (year - 6) as ReadingLevel;
+  });
   const [cast, setCast] = useState<Cast>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -213,7 +218,7 @@ export function Reader({ album }: { album: Album }) {
         <aside className="stack">
           <div className="plate">
             <div className="plate__head">
-              <span className="label">Level axis</span>
+              <span className="label">NSW year</span>
               <span className="label num">{Object.keys(cast).length} / 5 cast</span>
             </div>
             <div className="plate__body">
@@ -237,6 +242,9 @@ export function Reader({ album }: { album: Album }) {
                 </div>
                 <p className="gloss" style={{ margin: 0 }}>
                   {READING_LEVELS[level - 1].desc}
+                </p>
+                <p className="gloss" style={{ margin: 0 }}>
+                  {READING_LEVELS[level - 1].grammar}
                 </p>
               </div>
             </div>
